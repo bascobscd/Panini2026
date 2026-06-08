@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="Lap.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>Panini Mundial 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg:#050d1a;--border:#1a2d4a;--accent:#00d4ff;
+    --green:#00e676;--gold:#ffd700;--red:#ff5252;--text:#e8f0ff;--muted:#5577aa;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;
+       min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:40px;overscroll-behavior:none;}
+
+  header{display:flex;justify-content:space-between;align-items:center;
+    padding:16px 18px 12px;background:linear-gradient(135deg,#061020,#0d2040);
+    border-bottom:2px solid var(--border);position:sticky;top:0;z-index:200;
+    box-shadow:0 4px 24px rgba(0,0,0,.6);}
+  .logo-wrap{display:flex;align-items:center;gap:10px;}
+  .logo-icon{font-size:32px;}
+  .logo-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:#fff;line-height:1;}
+  .logo-sub{font-size:10px;letter-spacing:4px;color:var(--accent);font-weight:700;}
+  .circle-wrap{text-align:center;}
+  .circle-label{font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;}
+
+  nav{display:flex;background:#07111f;border-bottom:1px solid var(--border);position:sticky;top:74px;z-index:199;}
+  .tab-btn{flex:1;padding:11px 2px;border:none;background:transparent;color:var(--muted);
+    cursor:pointer;font-size:10px;font-weight:700;transition:all .2s;
+    border-bottom:3px solid transparent;font-family:'Barlow',sans-serif;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,212,255,.06);}
+
+  main{padding:12px 14px;}
+  .search{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+    color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;
+    outline:none;margin-bottom:10px;font-family:'Barlow',sans-serif;}
+
+  .group-label{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;
+    color:var(--accent);padding:12px 2px 6px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+
+  .team-card{background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:8px;
+    border:1px solid rgba(255,255,255,.07);overflow:hidden;}
+  .team-header{width:100%;background:transparent;border:none;cursor:pointer;
+    padding:11px 14px;display:flex;flex-direction:column;gap:5px;
+    color:inherit;text-align:left;font-family:'Barlow',sans-serif;}
+  .team-top{display:flex;justify-content:space-between;align-items:center;}
+  .team-name{font-size:14px;font-weight:700;}
+  .team-count{font-size:12px;color:#7aafff;font-weight:700;}
+  .bar-wrap{height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:99px;transition:width .4s;}
+  .chevron{font-size:16px;color:var(--accent);align-self:flex-end;transition:transform .25s;line-height:1;}
+
+  .sticker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 12px 14px;}
+  .sticker{border-radius:8px;cursor:pointer;font-size:12px;font-weight:900;
+    transition:all .15s;padding:8px 4px 6px;border:2px solid;font-family:'Barlow',sans-serif;
+    display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1;}
+  .sticker.have{background:linear-gradient(135deg,#00c853,#69f0ae);color:#001a0a;
+    border-color:#00e676;box-shadow:0 0 10px rgba(0,230,118,.45);}
+  .sticker.miss{background:rgba(255,255,255,.05);color:var(--muted);border-color:rgba(255,255,255,.09);}
+  .sticker .snum{font-size:14px;font-weight:900;}
+  .sticker .sico{font-size:12px;line-height:1;}
+
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;
+    color:var(--accent);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .faltante-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+    border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+  .faltante-name{font-size:13px;font-weight:700;margin-bottom:8px;}
+  .faltante-nums{display:flex;flex-wrap:wrap;gap:5px;}
+  .missing-num{background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.4);
+    color:#ff8a80;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:700;}
+  .complete-msg{text-align:center;padding:48px 20px;font-size:22px;font-weight:700;
+    color:var(--gold);font-family:'Bebas Neue',sans-serif;letter-spacing:2px;}
+
+  .stat-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .stat-name{font-size:12px;min-width:148px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+  .stat-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+  .stat-bar-fill{height:100%;border-radius:99px;transition:width .4s;}
+  .stat-pct{font-size:11px;color:#7aafff;font-weight:700;min-width:40px;text-align:right;}
+
+  .tool-box{background:rgba(255,255,255,.04);border:1px solid var(--border);
+    border-radius:10px;padding:14px;margin-bottom:12px;}
+  .tool-box p{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+  .tool-box strong{color:var(--text);}
+  .action-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .action-btn{flex:1;min-width:100px;padding:10px 6px;border:none;border-radius:8px;cursor:pointer;
+    font-weight:800;font-size:11px;color:#fff;font-family:'Barlow',sans-serif;transition:opacity .2s;}
+  .action-btn:active{opacity:.7;}
+  .btn-green{background:linear-gradient(135deg,#00b248,#00e676);}
+  .btn-red{background:linear-gradient(135deg,#c62828,#ff5252);}
+  .btn-blue{background:linear-gradient(135deg,#1565c0,#42a5f5);}
+  .btn-teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+  .btn-orange{background:linear-gradient(135deg,#e65100,#ffa726);}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:rgba(0,230,118,.92);color:#001a0a;padding:10px 22px;
+    border-radius:20px;font-weight:700;font-size:13px;
+    opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .toast.error{background:rgba(255,82,82,.95);color:#fff;}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo-wrap">
+  <div class="logo-icon">⭐</div>
+  <div>
+    <div class="logo-title">MI MUNDIAL</div>
+    <div class="logo-sub">2026</div>
+  </div>
+</div>
+  <div class="circle-wrap">
+    <svg width="62" height="62" viewBox="0 0 62 62">
+      <circle cx="31" cy="31" r="26" fill="none" stroke="#1a2a40" stroke-width="6"/>
+      <circle id="progress-ring" cx="31" cy="31" r="26" fill="none"
+        stroke="#00e676" stroke-width="6" stroke-dasharray="0 163.4"
+        stroke-linecap="round" transform="rotate(-90 31 31)" style="transition:stroke-dasharray .5s"/>
+      <text x="31" y="36" text-anchor="middle" fill="white" font-size="13"
+        font-weight="bold" font-family="monospace" id="progress-text">0%</text>
+    </svg>
+    <div class="circle-label" id="progress-count">0/0</div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="switchTab('album')">📒 Álbum</button>
+  <button class="tab-btn" onclick="switchTab('faltantes')">❌ Faltantes</button>
+  <button class="tab-btn" onclick="switchTab('stats')">📊 Stats</button>
+  <button class="tab-btn" onclick="switchTab('tools')">🔧 Herram.</button>
+</nav>
+
+<main>
+  <div id="tab-album">
+    <input class="search" type="text" placeholder="🔍 Buscar selección..." oninput="filterTeams(this.value)"/>
+    <div id="album-content"></div>
+  </div>
+
+  <div id="tab-faltantes" style="display:none">
+    <div class="section-title">Láminas que te faltan</div>
+    <div id="faltantes-content"></div>
+  </div>
+
+  <div id="tab-stats" style="display:none">
+    <div class="section-title">Progreso por selección</div>
+    <div id="stats-content"></div>
+  </div>
+
+  <div id="tab-tools" style="display:none">
+    <div class="section-title">Herramientas</div>
+
+    <div class="tool-box">
+      <p>💾 <strong>Exportar datos</strong> — Descarga un archivo con tus láminas marcadas para respaldo o usarlo en otro dispositivo.</p>
+      <div class="action-row">
+        <button class="action-btn btn-blue" onclick="exportFile('json')">📄 JSON</button>
+        <button class="action-btn btn-teal" onclick="exportFile('csv')">📊 CSV</button>
+        <button class="action-btn btn-orange" onclick="exportFile('txt')">📝 TXT</button>
+      </div>
+    </div>
+
+    <div class="tool-box">
+      <p>📥 <strong>Importar datos</strong> — Carga un archivo JSON exportado previamente para restaurar tus láminas.</p>
+      <div class="action-row">
+        <button class="action-btn btn-green" onclick="document.getElementById('import-file').click()">📂 Seleccionar archivo</button>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importFile(this)"/>
+    </div>
+
+    <div class="tool-box">
+      <p>✅ <strong>Marcar todas</strong> — Marca todo el álbum como completado.</p>
+      <div class="action-row">
+        <button class="action-btn btn-green" onclick="markAll()">✅ Marcar todas</button>
+      </div>
+    </div>
+
+    <div class="tool-box">
+      <p>🗑️ <strong>Borrar todo</strong> — Elimina todos los datos. No se puede deshacer.</p>
+      <div class="action-row">
+        <button class="action-btn btn-red" onclick="clearAll()">🗑️ Borrar todo</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATOS: orden exacto según álbum Panini Mundial 2026 ─────────────────────
+const GROUPS = [
+  { group:"A", selecciones:[
+    { id:"A1", pais:"🇲🇽 México",             total:20 },
+     { id:"A3", pais:"🇿🇦 Sudáfrica",           total:20 },
+    { id:"A2", pais:"🇰🇷 Corea del Sur",       total:20 },
+    { id:"A4", pais:"🇨🇿 Rep Checa",             total:20 },
+  ]},
+  { group:"B", selecciones:[
+    { id:"B1", pais:"🇨🇦 Canadá",              total:20 },
+    { id:"B2", pais:"🇧🇦 Bosnia-Herzegovina",  total:20 },
+    { id:"B3", pais:"🇶🇦 Qatar",               total:20 },
+    { id:"B4", pais:"🇨🇭 Suiza",               total:20 },
+  ]},
+  { group:"C", selecciones:[
+    { id:"C1", pais:"🇧🇷 Brasil",              total:20 },
+    { id:"C2", pais:"🇲🇦 Marruecos",           total:20 },
+    { id:"C3", pais:"🇭🇹 Haití",               total:20 },
+    { id:"C4", pais:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Escocia",            total:20 },
+  ]},
+  { group:"D", selecciones:[
+    { id:"D1", pais:"🇺🇸 Estados Unidos",       total:20 },
+    { id:"D3", pais:"🇵🇾 Paraguay",             total:20 },
+    { id:"D2", pais:"🇦🇺 Australia",            total:20 },
+    { id:"D4", pais:"🇹🇷 Turquía",              total:20 },
+  ]},
+  { group:"E", selecciones:[
+    { id:"E1", pais:"🇩🇪 Alemania",             total:20 },
+    { id:"E2", pais:"🇨🇼 Curazao",              total:20 },
+    { id:"E3", pais:"🇨🇮 Costa de Marfil",      total:20 },
+    { id:"E4", pais:"🇪🇨 Ecuador",              total:20 },
+  ]},
+  { group:"F", selecciones:[
+    { id:"F1", pais:"🇳🇱 Países Bajos",         total:20 },
+    { id:"F2", pais:"🇯🇵 Japón",                total:20 },
+    { id:"F3", pais:"🇸🇪 Suecia",               total:20 },
+    { id:"F4", pais:"🇹🇳 Túnez",                total:20 },
+  ]},
+  { group:"G", selecciones:[
+    { id:"G1", pais:"🇧🇪 Bélgica",              total:20 },
+     { id:"G3", pais:"🇪🇬 Egipto",               total:20 },
+    { id:"G2", pais:"🇮🇷 Irán",                 total:20 },
+    { id:"G4", pais:"🇳🇿 Nueva Zelanda",        total:20 },
+  ]},
+  { group:"H", selecciones:[
+    { id:"H1", pais:"🇪🇸 España",               total:20 },
+    { id:"H2", pais:"🇨🇻 Cabo Verde",           total:20 },
+    { id:"H3", pais:"🇸🇦 Arabia Saudita",       total:20 },
+    { id:"H4", pais:"🇺🇾 Uruguay",              total:20 },
+  ]},
+  { group:"I", selecciones:[
+    { id:"I1", pais:"🇫🇷 Francia",              total:20 },
+    { id:"I2", pais:"🇸🇳 Senegal",              total:20 },
+    { id:"I3", pais:"🇮🇶 Irak",                 total:20 },
+    { id:"I4", pais:"🇳🇴 Noruega",              total:20 },
+  ]},
+  { group:"J", selecciones:[
+    { id:"J1", pais:"🇦🇷 Argentina",            total:20 },
+    { id:"J2", pais:"🇩🇿 Argelia",              total:20 },
+    { id:"J3", pais:"🇦🇹 Austria",              total:20 },
+    { id:"J4", pais:"🇯🇴 Jordania",             total:20 },
+  ]},
+  { group:"K", selecciones:[
+    { id:"K1", pais:"🇵🇹 Portugal",             total:20 },
+    { id:"K2", pais:"🇨🇩 Congo RD",             total:20 },
+    { id:"K3", pais:"🇺🇿 Uzbekistán",           total:20 },
+    { id:"K4", pais:"🇨🇴 Colombia",             total:20 },
+  ]},
+  { group:"L", selecciones:[
+    { id:"L1", pais:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",          total:20 },
+    { id:"L2", pais:"🇭🇷 Croacia",              total:20 },
+    { id:"L3", pais:"🇬🇭 Ghana",                total:20 },
+    { id:"L4", pais:"🇵🇦 Panamá",               total:20 },
+  ]},
+  { group:"FWC", selecciones:[
+    { id:"FWC", pais:"🌍 FWC — Especiales", total:19, extra00:true },
+  ]},
+];
+
+const ALL_TEAMS = GROUPS.flatMap(g => g.selecciones);
+const TOTAL = ALL_TEAMS.reduce((s,t) => s + (t.extra00 ? t.total+1 : t.total), 0);
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = loadState();
+let openCards = new Set();
+
+function loadState(){
+  try{
+    const raw = JSON.parse(localStorage.getItem('panini2026_v7')||'{}');
+    const out = {};
+    ALL_TEAMS.forEach(t => { out[t.id] = new Set(Array.isArray(raw[t.id]) ? raw[t.id] : []); });
+    return out;
+  } catch(e){
+    const out = {};
+    ALL_TEAMS.forEach(t => { out[t.id] = new Set(); });
+    return out;
+  }
+}
+function saveState(){
+  const out = {};
+  for(const [k,v] of Object.entries(state)) out[k] = [...v];
+  localStorage.setItem('panini2026_v7', JSON.stringify(out));
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function totalOwned(){ return ALL_TEAMS.reduce((s,t) => s+state[t.id].size, 0); }
+function updateProgress(){
+  const owned = totalOwned(), pct = Math.round((owned/TOTAL)*100);
+  document.getElementById('progress-ring').setAttribute('stroke-dasharray',`${(pct/100)*163.4} 163.4`);
+  document.getElementById('progress-ring').setAttribute('stroke', pct===100?'#ffd700':'#00e676');
+  document.getElementById('progress-text').textContent = pct+'%';
+  document.getElementById('progress-count').textContent = owned+'/'+TOTAL;
+}
+
+// ─── TOGGLE ──────────────────────────────────────────────────────────────────
+function toggle(teamId, num){
+  const s = state[teamId];
+  if(s.has(num)) s.delete(num); else s.add(num);
+  saveState();
+  const btn = document.querySelector(`[data-team="${teamId}"][data-num="${num}"]`);
+  if(btn) btn.className = 'sticker '+(s.has(num)?'have':'miss');
+  const team = ALL_TEAMS.find(t => t.id===teamId);
+  const dt = team && team.extra00 ? team.total+1 : team ? team.total : 0;
+  const countEl = document.querySelector(`[data-count="${teamId}"]`);
+  if(countEl) countEl.textContent = s.size+'/'+dt;
+  const barEl = document.querySelector(`[data-bar="${teamId}"]`);
+  if(barEl){
+    const p = (s.size/dt)*100;
+    barEl.style.width = p+'%';
+    barEl.style.background = p===100
+      ? 'linear-gradient(90deg,#ffd700,#ffab00)'
+      : 'linear-gradient(90deg,#00c853,#1de9b6)';
+  }
+  updateProgress();
+}
+
+// ─── RENDER ALBUM ────────────────────────────────────────────────────────────
+function stickerNums(t){
+  return t.extra00
+    ? [0, ...Array.from({length:t.total},(_,i)=>i+1)]
+    : Array.from({length:t.total},(_,i)=>i+1);
+}
+function renderAlbum(filterText=''){
+  const container = document.getElementById('album-content');
+  const q = filterText.toLowerCase().trim();
+  let html = '';
+  for(const g of GROUPS){
+    const teams = q ? g.selecciones.filter(t => t.pais.toLowerCase().includes(q)) : g.selecciones;
+    if(!teams.length) continue;
+    html += `<div class="group-label">GRUPO ${g.group}</div>`;
+    for(const t of teams){
+      const dt = t.extra00 ? t.total+1 : t.total;
+      const owned = state[t.id].size;
+      const pct = (owned/dt)*100;
+      const isOpen = openCards.has(t.id);
+      const barColor = pct===100
+        ? 'linear-gradient(90deg,#ffd700,#ffab00)'
+        : 'linear-gradient(90deg,#00c853,#1de9b6)';
+      let grid = '';
+      if(isOpen){
+        for(const n of stickerNums(t)){
+          const has = state[t.id].has(n);
+          const label = n===0 ? '00' : n;
+          grid += `<button class="sticker ${has?'have':'miss'}" data-team="${t.id}" data-num="${n}" onclick="toggle('${t.id}',${n})">
+            <span class="sico">${has?'✅':'❌'}</span>
+            <span class="snum">${label}</span>
+          </button>`;
+        }
+        grid = `<div class="sticker-grid">${grid}</div>`;
+      }
+      html += `<div class="team-card">
+        <button class="team-header" onclick="toggleCard('${t.id}')">
+          <div class="team-top">
+            <span class="team-name">${t.pais}</span>
+            <span class="team-count" data-count="${t.id}">${owned}/${dt}</span>
+          </div>
+          <div class="bar-wrap"><div class="bar-fill" data-bar="${t.id}" style="width:${pct}%;background:${barColor}"></div></div>
+          <span class="chevron" style="transform:${isOpen?'rotate(180deg)':'rotate(0)'}">▾</span>
+        </button>${grid}</div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+function toggleCard(id){
+  if(openCards.has(id)) openCards.delete(id); else openCards.add(id);
+  renderAlbum(document.querySelector('.search').value);
+}
+function filterTeams(val){ renderAlbum(val); }
+
+// ─── FALTANTES ───────────────────────────────────────────────────────────────
+function renderFaltantes(){
+  const container = document.getElementById('faltantes-content');
+  const missing = ALL_TEAMS.map(t => ({
+    ...t,
+    missing: stickerNums(t).filter(n => !state[t.id].has(n)).map(n => n===0?'00':n)
+  })).filter(t => t.missing.length > 0);
+  if(!missing.length){
+    container.innerHTML = '<div class="complete-msg">🏆 ¡ÁLBUM COMPLETO!<br>¡FELICIDADES! 🥇</div>';
+    return;
+  }
+  container.innerHTML = missing.map(t => `
+    <div class="faltante-card">
+      <div class="faltante-name">${t.pais} — faltan ${t.missing.length}</div>
+      <div class="faltante-nums">${t.missing.map(n=>`<span class="missing-num">${n}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+function renderStats(){
+  const container = document.getElementById('stats-content');
+  const sorted = ALL_TEAMS.map(t => {
+    const dt = t.extra00 ? t.total+1 : t.total;
+    return {...t, owned:state[t.id].size, dt, pct:Math.round((state[t.id].size/dt)*100)};
+  }).sort((a,b) => b.pct-a.pct);
+  container.innerHTML = sorted.map(t => {
+    const color = t.pct===100
+      ? 'linear-gradient(90deg,#ffd700,#ffab00)'
+      : t.pct>=60 ? 'linear-gradient(90deg,#00c853,#1de9b6)'
+      : t.pct>=30 ? 'linear-gradient(90deg,#ff9800,#ffca28)'
+      : 'linear-gradient(90deg,#e53935,#ff7043)';
+    return `<div class="stat-row">
+      <span class="stat-name">${t.pais}</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:${t.pct}%;background:${color}"></div></div>
+      <span class="stat-pct">${t.owned}/${t.dt}</span></div>`;
+  }).join('');
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  ['album','faltantes','stats','tools'].forEach((t,i) => {
+    document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t===tab);
+  });
+  if(tab==='faltantes') renderFaltantes();
+  if(tab==='stats') renderStats();
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────────────────
+function download(filename, content, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportFile(format){
+  const fecha = new Date().toISOString().slice(0,10);
+
+  if(format === 'json'){
+    const out = {};
+    for(const [k,v] of Object.entries(state)) out[k] = [...v];
+    download(`panini2026_${fecha}.json`, JSON.stringify(out, null, 2), 'application/json');
+    showToast('📄 Archivo JSON descargado');
+
+  } else if(format === 'csv'){
+    const lines = ['Grupo,Selección,Número,Estado'];
+    for(const g of GROUPS){
+      for(const t of g.selecciones){
+        for(const n of stickerNums(t)){
+          const label = n===0 ? '00' : n;
+          const estado = state[t.id].has(n) ? 'Tengo' : 'Falta';
+          const nombre = t.pais.replace(/[\u{1F300}-\u{1FFFF}]/gu,'').trim();
+          lines.push(`${g.group},"${nombre}",${label},${estado}`);
+        }
+      }
+    }
+    download(`panini2026_${fecha}.csv`, lines.join('\n'), 'text/csv;charset=utf-8');
+    showToast('📊 Archivo CSV descargado');
+
+  } else if(format === 'txt'){
+    const lines = [`PANINI MUNDIAL 2026 — Exportado ${fecha}`, ''];
+    for(const g of GROUPS){
+      lines.push(`══ GRUPO ${g.group} ══`);
+      for(const t of g.selecciones){
+        const dt = t.extra00 ? t.total+1 : t.total;
+        const owned = state[t.id].size;
+        const nombre = t.pais.replace(/[\u{1F300}-\u{1FFFF}]/gu,'').trim();
+        lines.push(`\n${nombre} (${owned}/${dt})`);
+        const tengo = stickerNums(t).filter(n => state[t.id].has(n)).map(n=>n===0?'00':n);
+        const faltan = stickerNums(t).filter(n => !state[t.id].has(n)).map(n=>n===0?'00':n);
+        lines.push(`  Tengo  : ${tengo.length ? tengo.join(', ') : '(ninguna)'}`);
+        lines.push(`  Faltan : ${faltan.length ? faltan.join(', ') : '(completo ✓)'}`);
+      }
+      lines.push('');
+    }
+    const owned = totalOwned();
+    const pct = Math.round((owned/TOTAL)*100);
+    lines.push(`TOTAL: ${owned}/${TOTAL} láminas (${pct}%)`);
+    download(`panini2026_${fecha}.txt`, lines.join('\n'), 'text/plain;charset=utf-8');
+    showToast('📝 Archivo TXT descargado');
+  }
+}
+
+// ─── IMPORT ──────────────────────────────────────────────────────────────────
+function importFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const parsed = JSON.parse(e.target.result);
+      ALL_TEAMS.forEach(t => {
+        if(Array.isArray(parsed[t.id])) state[t.id] = new Set(parsed[t.id]);
+      });
+      saveState(); openCards.clear(); renderAlbum(); updateProgress();
+      showToast('✅ Datos importados correctamente');
+    } catch(err){ showToast('❌ Archivo inválido','error'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+// ─── MARK / CLEAR ────────────────────────────────────────────────────────────
+function markAll(){
+  if(!confirm('¿Marcar TODAS las láminas como conseguidas?')) return;
+  ALL_TEAMS.forEach(t => { state[t.id] = new Set(stickerNums(t)); });
+  saveState(); openCards.clear(); renderAlbum(); updateProgress();
+  showToast('✅ ¡Todas marcadas!');
+}
+function clearAll(){
+  if(!confirm('¿Borrar TODOS los datos?\nNo se puede deshacer.')) return;
+  ALL_TEAMS.forEach(t => { state[t.id] = new Set(); });
+  saveState(); openCards.clear(); renderAlbum(); updateProgress();
+  showToast('🗑️ Datos borrados');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast'+(type==='error'?' error':'')+' show';
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+renderAlbum();
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Panini 2026",
+  "short_name": "Panini2026",
+  "start_url": "./",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "Lap.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
